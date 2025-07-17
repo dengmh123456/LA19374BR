@@ -1,0 +1,48 @@
+Clear["Global`*"];
+
+\[Sigma]x = ({{0, 1}, {1, 0}});
+\[Sigma]y = ({{0, -I}, {I, 0}});
+\[Sigma]z = ({{1, 0}, {0, -1}});
+
+hx = v + w Cos[k];
+hy = w Sin[k];
+hz = I u;
+
+H = hx \[Sigma]x + hy \[Sigma]y + hz \[Sigma]z;
+u = 1/2;
+vi = 5/2;
+vc = 3/2;
+v = vi + (vc - vi)*t/\[Tau];
+w = 1;
+\[Tau] = 10^b;
+
+L = 60;
+
+data = Table[Clear[tot1, tot2];
+   tot1 = ParallelTable[tmin = 0;
+     tmax = \[Tau];
+     H12 = H /. {t -> tmin};
+     {valr, vecr} = Eigensystem[H12];
+     {valr1, vecr1} = Transpose@SortBy[Transpose[{N[valr], vecr}], Re];
+     H13 = H /. {t -> tmax};
+     {valr2, vecr2} = Eigensystem[H13];
+     {valr21, vecr21} = 
+      Transpose@SortBy[Transpose[{N[valr2], vecr2}], Re];
+     vec21 = Transpose[Inverse[vecr21]];
+     \[Psi] = Table[x[j][t], {j, 2}];
+     solv1 = 
+      NDSolve[{Thread[(I D[\[Psi], t] == H.\[Psi])], 
+        Thread[(\[Psi] /. {t -> tmin}) == vecr1[[1]]]}, 
+       Table[x[j], {j, 2}], {t, tmin, tmax}, WorkingPrecision -> 30, 
+       MaxSteps -> Infinity];
+     vec31 = First[\[Psi] /. solv1 /. t -> tmax];
+     f1 = vec21[[1]].vec31;
+     f2 = vec21[[2]].vec31;
+     vec32 = 
+      f1 Conjugate[vec21[[1]]]/vec21[[1]].vec21[[1]]\[Conjugate] + 
+       f2 Conjugate[vec21[[2]]]/vec21[[2]].vec21[[2]]\[Conjugate];
+     M = (vec21[[2]].vec31)*(vec32\[Conjugate].vecr21[[2]])/((vec21[[\
+2]].vecr21[[2]])*(vec32\[Conjugate].vec31));
+     M, {k, 0 + 1/100000, 2*\[Pi], 2*\[Pi]/L}];
+   tot2 = Total[tot1]/L; {\[Tau], tot2}, {b, -1, 3, 2/10}];
+
