@@ -16,7 +16,7 @@ v = vi + (vc - vi)*t/\[Tau];
 w = 1;
 \[Tau] = 10^b;
 
-L = 60;
+L = 60000;
 
 data = Table[Clear[tot1, tot2];
    tot1 = ParallelTable[tmin = 0;
@@ -44,5 +44,5 @@ data = Table[Clear[tot1, tot2];
      M = (vec21[[2]].vec31)*(vec32\[Conjugate].vecr21[[2]])/((vec21[[\
 2]].vecr21[[2]])*(vec32\[Conjugate].vec31));
      M, {k, 0 + 1/100000, 2*\[Pi], 2*\[Pi]/L}];
-   tot2 = Total[tot1]/L; {\[Tau], tot2}, {b, -1, 3, 2/10}];
+   tot2 = Total[tot1]/L; {\[Tau], tot2}, {b, -4, 3, 2/10}];
 
